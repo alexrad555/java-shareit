@@ -3,7 +3,7 @@ package ru.practicum.shareit.user.storage.memory;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.exception.DataNotFoundException;
 import ru.practicum.shareit.user.exception.DuplicateException;
-import ru.practicum.shareit.user.exception.InternalServerErrorException;
+import ru.practicum.shareit.user.exception.ValidationException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
@@ -21,10 +21,10 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User create(User user) {
         if (user.getId() != null) {
-            throw new InternalServerErrorException("не должен приходить id");
+            throw new ValidationException("не должен приходить id");
         }
         if (user.getEmail() == null) {
-            throw new InternalServerErrorException("должен приходить email");
+            throw new ValidationException("должен приходить email");
         }
         if (checkEmailOnStorage(user, null)) {
             throw new DuplicateException("не должен повторяться email");
@@ -37,7 +37,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User update(User userDto, Long userId) {
         if (userId == null) {
-            throw new InternalServerErrorException("не приходить id");
+            throw new ValidationException("не приходить id");
         }
         if (!storage.containsKey(userId)) {
             throw new DataNotFoundException("Не найден id");
@@ -57,11 +57,12 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getById(Long id) {
-        if (!storage.containsKey(id)) {
+    public User getById(Long userId) {
+        User user = storage.get(userId);
+        if (user == null) {
             throw new DataNotFoundException("Не найден id");
         }
-        return storage.get(id);
+        return user;
     }
 
     @Override

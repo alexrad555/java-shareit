@@ -8,7 +8,6 @@ import ru.practicum.shareit.item.controller.dto.ItemUpdateRequest;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,9 +19,7 @@ import java.util.stream.Collectors;
 public class ItemController {
 
     private final ItemMapper mapper;
-    private final UserService userService;
     private final ItemService itemService;
-
 
     @GetMapping("/{itemId}")
     public ItemResponse getById(@PathVariable Long itemId) {
@@ -31,7 +28,9 @@ public class ItemController {
 
     @GetMapping
     public List<ItemResponse> getAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getAllUser(userId).stream().map(mapper::toResponse).collect(Collectors.toList());
+        return itemService.getAllUser(userId).stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/search")

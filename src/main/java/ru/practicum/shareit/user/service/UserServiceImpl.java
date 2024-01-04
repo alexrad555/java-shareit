@@ -14,9 +14,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User create(User user) {
-//        if (user.getName() == null || user.getName().isBlank()) {
-//            user.setName(user.getLogin());
-//        }
         return userStorage.create(user);
     }
 
