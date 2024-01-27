@@ -1,20 +1,20 @@
 package ru.practicum.shareit.user.controller.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @Getter
-@AllArgsConstructor
+@Setter
 public class UserCreateRequest {
 
     @NotNull
-    private final String name;
+    private String name;
 
     @NotNull
     @Email
-    private final String email;
+    private String email;
 
 }

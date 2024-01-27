@@ -1,39 +1,76 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.DuplicateException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Override
     public User create(User user) {
-        return userStorage.create(user);
+        if (user.getId() != null) {
+            throw new ValidationException("не должен приходить id");
+        }
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new ValidationException("должен приходить email");
+        }
+//        if (findByEmail(user.getEmail()) != null) {
+//            throw new DuplicateException("не должен повторяться email");
+//        }
+        return userRepository.save(user);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     @Override
-    public User getById(Long userId) {
-        return userStorage.getById(userId);
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new DataNotFoundException(String.format("Пользователь с id %d не найден", userId)));
     }
 
     @Override
-    public User update(User user, Long userId) {
-        return userStorage.update(user, userId);
+    public User update(User userDto) {
+        if (userDto.getId() == null) {
+            throw new ValidationException("не приходить id");
+        }
+        User changeUser = findById(userDto.getId());
+        String newEmail = userDto.getEmail();
+        if (newEmail != null) {
+            User emailUser = findByEmail(newEmail);
+            if (emailUser != null && emailUser.getId() != changeUser.getId()) {
+                throw new DuplicateException("не должен повторяться email");
+            }
+            changeUser.setEmail(userDto.getEmail());
+        }
+        if (userDto.getName() != null) {
+            changeUser.setName(userDto.getName());
+        }
+        return userRepository.save(changeUser);
     }
 
     @Override
-    public List<User> getAll() {
-        return userStorage.getAll();
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     @Override
-    public void delete(Long userId) {
-        userStorage.delete(userId);
+    @Transactional
+    @Modifying
+    public void deleteById(Long userId) {
+        userRepository.deleteById(userId);
     }
 }
