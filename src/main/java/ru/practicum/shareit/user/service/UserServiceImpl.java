@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
         String newEmail = userDto.getEmail();
         if (newEmail != null) {
             User emailUser = findByEmail(newEmail);
-            if (emailUser != null && emailUser.getId().equals(changeUser.getId())) {
+            if (emailUser != null && !emailUser.getId().equals(changeUser.getId())) {
                 throw new DuplicateException("не должен повторяться email");
             }
             changeUser.setEmail(userDto.getEmail());
