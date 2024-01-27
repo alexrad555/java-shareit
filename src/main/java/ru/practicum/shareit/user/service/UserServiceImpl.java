@@ -25,9 +25,6 @@ public class UserServiceImpl implements UserService {
         if (user.getEmail() == null || user.getEmail().isBlank()) {
             throw new ValidationException("должен приходить email");
         }
-//        if (findByEmail(user.getEmail()) != null) {
-//            throw new DuplicateException("не должен повторяться email");
-//        }
         return userRepository.save(user);
     }
 
@@ -51,7 +48,7 @@ public class UserServiceImpl implements UserService {
         String newEmail = userDto.getEmail();
         if (newEmail != null) {
             User emailUser = findByEmail(newEmail);
-            if (emailUser != null && emailUser.getId() != changeUser.getId()) {
+            if (emailUser != null && emailUser.getId().equals(changeUser.getId())) {
                 throw new DuplicateException("не должен повторяться email");
             }
             changeUser.setEmail(userDto.getEmail());
