@@ -21,15 +21,17 @@ public class ItemController {
     private final ItemService itemService;
     private final CommentMapper commentMapper;
 
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+
     @GetMapping("/{itemId}")
     public ItemResponse getById(@PathVariable Long itemId,
-                                @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                @RequestHeader(X_SHARER_USER_ID) Long userId) {
         Item item = itemService.findById(itemId, userId);
         return mapper.toResponse(item);
     }
 
     @GetMapping
-    public List<ItemResponse> getAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemResponse> getAll(@RequestHeader(X_SHARER_USER_ID) Long userId) {
         return itemService.findAllByOwnerId(userId).stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
@@ -37,7 +39,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemResponse> search(@RequestParam String text,
-                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                     @RequestHeader(X_SHARER_USER_ID) Long userId) {
         return itemService.search(text, userId).stream()
                 .map(mapper::toResponse)
                 .collect(Collectors
@@ -46,7 +48,7 @@ public class ItemController {
 
     @PostMapping
     public ItemResponse create(@Valid @RequestBody ItemRequest itemDto,
-                               @RequestHeader("X-Sharer-User-Id") Long userId) {
+                               @RequestHeader(X_SHARER_USER_ID) Long userId) {
         Item item = mapper.toItem(itemDto);
         return mapper.toResponse(itemService.create(item, userId));
     }
@@ -54,7 +56,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemResponse update(@PathVariable Long itemId,
                                @Valid @RequestBody ItemUpdateRequest itemDto,
-                               @RequestHeader("X-Sharer-User-Id") Long userId) {
+                               @RequestHeader(X_SHARER_USER_ID) Long userId) {
         Item item = mapper.toItemUpdate(itemDto);
         return mapper.toResponse((itemService.update(item, userId, itemId)));
     }
@@ -62,7 +64,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public CommentResponse createComment(@PathVariable Long itemId,
                                          @Valid @RequestBody CommentCreateRequest commentCreateRequest,
-                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                         @RequestHeader(X_SHARER_USER_ID) Long userId) {
         return commentMapper.toResponse(itemService.createComment(itemId, commentCreateRequest, userId));
     }
 }

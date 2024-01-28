@@ -18,33 +18,35 @@ public class BookingController {
     private final BookingMapper bookingMapper;
     private final BookingService bookingService;
 
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+
     @PostMapping
     public BookingResponse create(@Valid @RequestBody BookingCreateRequest bookingDto,
-                                  @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                  @RequestHeader(X_SHARER_USER_ID) Long userId) {
         return bookingMapper.toResponse(bookingService.create(bookingDto, userId));
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingResponse update(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingResponse update(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                   @RequestParam() boolean approved,
                                   @PathVariable Long bookingId) {
         return bookingMapper.toResponse(bookingService.update(bookingId, userId, approved));
     }
 
     @GetMapping("/{bookingId}")
-    public BookingResponse getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingResponse getBooking(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                       @PathVariable Long bookingId) {
         return bookingMapper.toResponse(bookingService.findByIdAndUserId(bookingId, userId));
     }
 
     @GetMapping
-    public List<BookingResponse> getAllByBooker(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingResponse> getAllByBooker(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                                 @RequestParam(defaultValue = "ALL") BookingState state) {
         return bookingMapper.toResponse(bookingService.findAllByBooker(userId, state));
     }
 
     @GetMapping("/owner")
-    public List<BookingResponse> getAllByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingResponse> getAllByOwner(@RequestHeader(X_SHARER_USER_ID) Long userId,
                                                @RequestParam(defaultValue = "ALL") BookingState state) {
         return bookingMapper.toResponse(bookingService.findAllByOwner(userId, state));
     }

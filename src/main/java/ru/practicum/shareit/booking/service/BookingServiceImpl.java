@@ -59,7 +59,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.toBooking(bookingRepository.save(bookingMapper.toEntity(booking)));
     }
 
-
     @Override
     public Booking findByIdAndUserId(Long bookingId, Long userId) {
         BookingEntity bookingEntity = bookingRepository.findById(bookingId).orElseThrow(
