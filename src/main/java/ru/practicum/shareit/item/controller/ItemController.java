@@ -2,9 +2,8 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.controller.dto.ItemRequest;
-import ru.practicum.shareit.item.controller.dto.ItemResponse;
-import ru.practicum.shareit.item.controller.dto.ItemUpdateRequest;
+import ru.practicum.shareit.item.controller.dto.*;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -20,23 +19,28 @@ public class ItemController {
 
     private final ItemMapper mapper;
     private final ItemService itemService;
+    private final CommentMapper commentMapper;
+
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @GetMapping("/{itemId}")
-    public ItemResponse getById(@PathVariable Long itemId) {
-        return mapper.toResponse(itemService.getById(itemId));
+    public ItemResponse getById(@PathVariable Long itemId,
+                                @RequestHeader(X_SHARER_USER_ID) Long userId) {
+        Item item = itemService.findById(itemId, userId);
+        return mapper.toResponse(item);
     }
 
     @GetMapping
-    public List<ItemResponse> getAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.getAllUser(userId).stream()
+    public List<ItemResponse> getAll(@RequestHeader(X_SHARER_USER_ID) Long userId) {
+        return itemService.findAllByOwnerId(userId).stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/search")
     public List<ItemResponse> search(@RequestParam String text,
-                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemService.search(text).stream()
+                                     @RequestHeader(X_SHARER_USER_ID) Long userId) {
+        return itemService.search(text, userId).stream()
                 .map(mapper::toResponse)
                 .collect(Collectors
                         .toList());
@@ -44,7 +48,7 @@ public class ItemController {
 
     @PostMapping
     public ItemResponse create(@Valid @RequestBody ItemRequest itemDto,
-                               @RequestHeader("X-Sharer-User-Id") Long userId) {
+                               @RequestHeader(X_SHARER_USER_ID) Long userId) {
         Item item = mapper.toItem(itemDto);
         return mapper.toResponse(itemService.create(item, userId));
     }
@@ -52,8 +56,15 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemResponse update(@PathVariable Long itemId,
                                @Valid @RequestBody ItemUpdateRequest itemDto,
-                               @RequestHeader("X-Sharer-User-Id") Long userId) {
+                               @RequestHeader(X_SHARER_USER_ID) Long userId) {
         Item item = mapper.toItemUpdate(itemDto);
         return mapper.toResponse((itemService.update(item, userId, itemId)));
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentResponse createComment(@PathVariable Long itemId,
+                                         @Valid @RequestBody CommentCreateRequest commentCreateRequest,
+                                         @RequestHeader(X_SHARER_USER_ID) Long userId) {
+        return commentMapper.toResponse(itemService.createComment(itemId, commentCreateRequest, userId));
     }
 }

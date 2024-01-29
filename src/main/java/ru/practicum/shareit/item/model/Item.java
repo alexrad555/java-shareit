@@ -1,19 +1,23 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.*;
+import lombok.Data;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-@Getter
-@Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
+import java.util.List;
+
+@Data
 public class Item {
+
     private Long id;
     private String name;
     private String description;
     private Boolean available;
     private User owner;
-    private String request;
+    private ItemRequest request;
+    private List<Comment> comments;
+    private Booking lastBooking;
+    private Booking nextBooking;
+
 }

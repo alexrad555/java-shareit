@@ -1,19 +1,19 @@
 package ru.practicum.shareit.item.controller.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter
-@AllArgsConstructor
+@Setter
 public class ItemRequest {
     @NotNull
     @Size(min = 1)
-    private final String name;
+    private String name;
     @NotNull
-    private final String description;
+    private String description;
     @NotNull
-    private final Boolean available;
+    private Boolean available;
 }

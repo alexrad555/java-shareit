@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.controller.error;
+package ru.practicum.shareit.exception.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
