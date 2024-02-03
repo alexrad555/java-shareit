@@ -11,14 +11,14 @@ import ru.practicum.shareit.booking.service.BookingService;
 import javax.validation.Valid;
 import java.util.List;
 
+import static ru.practicum.shareit.http.RequestHeader.X_SHARER_USER_ID;
+
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingMapper bookingMapper;
     private final BookingService bookingService;
-
-    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
     public BookingResponse create(@Valid @RequestBody BookingCreateRequest bookingDto,
@@ -41,13 +41,17 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponse> getAllByBooker(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                                @RequestParam(defaultValue = "ALL") BookingState state) {
-        return bookingMapper.toResponse(bookingService.findAllByBooker(userId, state));
+                                                @RequestParam(defaultValue = "ALL") BookingState state,
+                                                @RequestParam(defaultValue = "0", required = false) int from,
+                                                @RequestParam(defaultValue = "20", required = false) int size) {
+        return bookingMapper.toResponse(bookingService.findAllByBooker(userId, state, from, size));
     }
 
     @GetMapping("/owner")
     public List<BookingResponse> getAllByOwner(@RequestHeader(X_SHARER_USER_ID) Long userId,
-                                               @RequestParam(defaultValue = "ALL") BookingState state) {
-        return bookingMapper.toResponse(bookingService.findAllByOwner(userId, state));
+                                               @RequestParam(defaultValue = "ALL") BookingState state,
+                                               @RequestParam(defaultValue = "0", required = false) int from,
+                                               @RequestParam(defaultValue = "20", required = false) int size) {
+        return bookingMapper.toResponse(bookingService.findAllByOwner(userId, state, from, size));
     }
 }

@@ -1,7 +1,10 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.OffsetPageable;
 import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
 import ru.practicum.shareit.booking.entity.BookingEntity;
@@ -85,18 +88,20 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> findAllByBooker(Long userId, BookingState state) {
+    public List<Booking> findAllByBooker(Long userId, BookingState state, int from, int size) {
         User user = userService.findById(userId);
-        List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByBookerIdOrderByStartDateDesc(userId));
+        Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.DESC, "startDate"));
+        List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByBookerId(userId, pageable));
         return bookingList.stream()
                 .filter(booking -> checkBookingState(booking, state))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Booking> findAllByOwner(Long userId, BookingState state) {
+    public List<Booking> findAllByOwner(Long userId, BookingState state, int from, int size) {
         User user = userService.findById(userId);
-        List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByItemOwnerIdOrderByStartDateDesc(userId));
+        Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.DESC, "startDate"));
+        List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByItemOwnerId(userId, pageable));
         return bookingList.stream()
                 .filter(booking -> checkBookingState(booking, state))
                 .collect(Collectors.toList());

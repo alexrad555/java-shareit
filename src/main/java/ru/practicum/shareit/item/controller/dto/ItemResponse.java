@@ -16,4 +16,5 @@ public class ItemResponse {
     private List<CommentResponse> comments;
     private LinkedBookingResponse lastBooking;
     private LinkedBookingResponse nextBooking;
+    private Long requestId;
 }
