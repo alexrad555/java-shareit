@@ -13,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString
 @Entity
+@EqualsAndHashCode
 @Table(name = "items")
 public class ItemEntity {
     @Id

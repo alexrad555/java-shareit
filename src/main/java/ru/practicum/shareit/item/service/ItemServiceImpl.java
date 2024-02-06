@@ -50,7 +50,6 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemMapper.toItem(itemCreateRequest);
         item.setOwner(user);
         item.setRequest(itemRequestService.findOptionalById(itemCreateRequest.getRequestId()).orElse(null));
-//        ItemEntity itemEntity = itemRepository.save(itemMapper.toEntity(item));
         ItemEntity itemEntity = itemMapper.toEntity(item);
         itemRepository.save(itemEntity);
         return getItem(itemMapper.toItem(itemEntity), userId);
@@ -67,7 +66,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> search(String text, Long userId, int from, int size) {
-        if (text.isBlank()) {
+        if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
         Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.ASC, "id"));
@@ -95,7 +94,6 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-//        ItemEntity itemEntity = itemRepository.save(itemMapper.toEntity(item));
         ItemEntity itemEntity = itemMapper.toEntity(item);
         itemRepository.save(itemEntity);
         return getItem(itemMapper.toItem(itemEntity), userId);

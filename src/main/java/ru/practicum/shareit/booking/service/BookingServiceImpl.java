@@ -13,7 +13,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
@@ -33,7 +32,6 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final ItemService itemService;
     private final BookingMapper bookingMapper;
-    private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
 
     @Override
@@ -59,7 +57,9 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(item);
         booking.setBooker(user);
         booking.setStatus(WAITING);
-        return bookingMapper.toBooking(bookingRepository.save(bookingMapper.toEntity(booking)));
+        BookingEntity bookingEntity = bookingMapper.toEntity(booking);
+        bookingRepository.save(bookingEntity);
+        return bookingMapper.toBooking(bookingEntity);
     }
 
     @Override
@@ -81,10 +81,12 @@ public class BookingServiceImpl implements BookingService {
             throw new DataNotFoundException(String.format("Бронирование с id %d не найдено", bookingId));
         }
         if (booking.getStatus() != WAITING) {
-            throw new ValidationException("Меня статус бронирования запрещено");
+            throw new ValidationException("Менять статус бронирования запрещено");
         }
         booking.setStatus(approved ? APPROVED : REJECTED);
-        return bookingMapper.toBooking(bookingRepository.save(bookingMapper.toEntity(booking)));
+        BookingEntity bookingEntity = bookingMapper.toEntity(booking);
+        bookingRepository.save(bookingEntity);
+        return bookingMapper.toBooking(bookingEntity);
     }
 
     @Override
@@ -117,7 +119,7 @@ public class BookingServiceImpl implements BookingService {
 
     private boolean checkBookingState(Booking booking, BookingState state) {
         switch (state) {
-            case PAST:
+                case PAST:
                 return booking.getEndDate().isBefore(LocalDateTime.now());
             case FUTURE:
                 return booking.getStartDate().isAfter(LocalDateTime.now());

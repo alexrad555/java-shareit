@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.OffsetPageable;
 import ru.practicum.shareit.exception.DataNotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -102,10 +101,4 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         fillRequestItems(List.of(itemRequest));
         return itemRequest;
     }
-
-//    private void checkPageSize(Long from, Long size) {
-//        if (from < 0 || size <= 0) {
-//            throw new ValidationException("Не корректные данные");
-//        }
-//    }
 }

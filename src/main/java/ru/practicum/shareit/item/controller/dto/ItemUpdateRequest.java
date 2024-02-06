@@ -12,10 +12,4 @@ public class ItemUpdateRequest {
     private String description;
     private Boolean available;
 
-    public ItemUpdateRequest(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-
 }

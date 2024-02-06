@@ -7,7 +7,6 @@ import ru.practicum.shareit.item.model.Item;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// ToDo
 
 @Data
 @AllArgsConstructor
