@@ -143,7 +143,7 @@ class ItemServiceImplTest {
                 itemEntity, itemRequestor, LocalDateTime.now());
         BookingEntity bookingEntityLast = new BookingEntity(1L, LocalDateTime.now().minusSeconds(30),
                 LocalDateTime.now(), itemEntity, itemRequestor, BookingStatus.APPROVED);
-        BookingEntity bookingEntityNext= new BookingEntity(2L, LocalDateTime.now().minusSeconds(10),
+        BookingEntity bookingEntityNext = new BookingEntity(2L, LocalDateTime.now().minusSeconds(10),
                 LocalDateTime.now(), itemEntity, itemRequestor, BookingStatus.APPROVED);
         Item origionItem = itemMapper.toItem(itemEntity);
         origionItem.setLastBooking(bookingMapper.toBooking(bookingEntityLast));

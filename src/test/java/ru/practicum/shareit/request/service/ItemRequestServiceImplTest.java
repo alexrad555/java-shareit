@@ -133,7 +133,7 @@ class ItemRequestServiceImplTest {
 
     @Test
     void willThrowWhenItemRequestNotFound() {
-        ItemRequestEntity itemRequestEntity= new ItemRequestEntity(1L, "Need book", userSecond, LocalDateTime.now());
+        ItemRequestEntity itemRequestEntity = new ItemRequestEntity(1L, "Need book", userSecond, LocalDateTime.now());
         when(itemRequestRepository.findById(anyLong())).thenReturn(Optional.empty());
         Assertions.assertThatThrownBy(
                         () -> itemRequestService.findById(99L, itemRequestEntity.getId()))

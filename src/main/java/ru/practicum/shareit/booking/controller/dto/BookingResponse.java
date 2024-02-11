@@ -9,10 +9,6 @@ import ru.practicum.shareit.user.controller.dto.UserResponse;
 
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
-
 @Getter
 @Setter
 @EqualsAndHashCode

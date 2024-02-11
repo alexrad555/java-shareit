@@ -79,6 +79,7 @@ class BookingRepositoryTest {
         bookingRepository.save(bookingEntityFirst);
         bookingRepository.save(bookingEntitySecond);
     }
+
     @Test
     void canFindAllByBookerId() {
         Pageable pageable = new OffsetPageable(0, 20, Sort.by(Sort.Direction.ASC, "id"));

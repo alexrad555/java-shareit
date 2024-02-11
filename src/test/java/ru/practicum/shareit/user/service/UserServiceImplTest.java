@@ -103,6 +103,7 @@ class UserServiceImplTest {
         Assertions.assertThat(user).isEqualTo(userFirst);
 
     }
+
     @Test
     void willThrowWhenUserNotFound() {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -114,7 +115,7 @@ class UserServiceImplTest {
     @Test
     void canUpdateUser() {
         UserUpdateRequest userUpdateRequest = new UserUpdateRequest();
-        userUpdateRequest.setId(1l);
+        userUpdateRequest.setId(1L);
         userUpdateRequest.setName("Update name");
         userUpdateRequest.setEmail("update@user.com");
 
@@ -159,7 +160,7 @@ class UserServiceImplTest {
     @Test
     void willThrowWhenDuplicateEmail() {
         UserUpdateRequest userUpdateRequest = new UserUpdateRequest();
-        userUpdateRequest.setId(1l);
+        userUpdateRequest.setId(1L);
         userUpdateRequest.setName("Update name");
         userUpdateRequest.setEmail("update@user.com");
         User userOrigin = userMapper.toUserUpdate(userUpdateRequest);
