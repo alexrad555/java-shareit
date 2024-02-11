@@ -144,11 +144,11 @@ class UserControllerTest {
         when(userService.update(any())).thenThrow(new DuplicateException("дубликат"));
 
         mockMvc.perform(
-                        patch("/users", 1L)
+                        patch("/users/{userId}", 1L)
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isMethodNotAllowed());
+                .andExpect(status().isConflict());
     }
 
     @Test

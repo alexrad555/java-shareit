@@ -103,12 +103,12 @@ class ItemControllerTest {
         when(itemService.update(any(),anyLong(), anyLong())).thenThrow(new ValidationException("не найден"));
 
         mockMvc.perform(
-                        patch("/items", 1L)
+                        patch("/items/{itemId}", 1L)
                                 .header(X_SHARER_USER_ID, 1L)
                                 .content(json)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
