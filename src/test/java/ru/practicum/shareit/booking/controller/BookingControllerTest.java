@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.practicum.shareit.http.RequestHeader.X_SHARER_USER_ID;
+
 
 @WebMvcTest(BookingController.class)
 @ContextConfiguration(
@@ -59,6 +59,8 @@ class BookingControllerTest {
 
     @Autowired
     BookingMapper bookingMapper;
+
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @Test
     void canCreate() throws Exception {
@@ -88,6 +90,36 @@ class BookingControllerTest {
                 .andReturn();
         BookingResponse bookingResponseRes = objectMapper.readValue(result.getResponse().getContentAsString(), BookingResponse.class);
         Assertions.assertThat(bookingResponseRes).isEqualTo(bookingResponse);
+    }
+
+        @Test
+    void canUpdate() throws Exception {
+        User userOwner = new User(1L, "Tod", "user@user.com");
+        User booker = new User(2L, "Bob", "user1@user.com");
+        Item itemFirst = new Item(1L, "Book", "Read book", true,
+                booker, null, Collections.EMPTY_LIST, null, null);
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStartDate(LocalDateTime.now().plusMinutes(10));
+        booking.setEndDate(LocalDateTime.now().plusMinutes(15));
+        booking.setItem(itemFirst);
+        booking.setBooker(booker);
+        booking.setStatus(BookingStatus.APPROVED);
+        BookingResponse bookingResponse = bookingMapper.toResponse(booking);
+
+
+        when(bookingService.update(anyLong(), anyLong(), anyBoolean())).thenReturn(booking);
+
+        MvcResult result = mockMvc.perform(
+                        patch("/bookings/{bookingId}", booking.getId())
+                                .header(X_SHARER_USER_ID, userOwner.getId())
+                                .accept(MediaType.APPLICATION_JSON)
+                                .param("approved", "true"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        BookingResponse response = objectMapper.readValue(result.getResponse().getContentAsString(), BookingResponse.class);
+        Assertions.assertThat(response).isEqualTo(bookingResponse);
     }
 
     @Test

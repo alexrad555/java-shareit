@@ -11,7 +11,6 @@ import ru.practicum.shareit.booking.service.BookingService;
 import javax.validation.Valid;
 import java.util.List;
 
-import static ru.practicum.shareit.http.RequestHeader.X_SHARER_USER_ID;
 
 @RestController
 @RequestMapping(path = "/bookings")
@@ -19,6 +18,7 @@ import static ru.practicum.shareit.http.RequestHeader.X_SHARER_USER_ID;
 public class BookingController {
     private final BookingMapper bookingMapper;
     private final BookingService bookingService;
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
     public BookingResponse create(@Valid @RequestBody BookingCreateRequest bookingDto,

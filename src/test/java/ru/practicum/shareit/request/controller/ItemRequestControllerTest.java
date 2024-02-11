@@ -32,7 +32,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.practicum.shareit.http.RequestHeader.X_SHARER_USER_ID;
 
 @WebMvcTest(ItemRequestController.class)
 @ContextConfiguration(
@@ -56,6 +55,8 @@ class ItemRequestControllerTest {
 
     @Autowired
     ItemRequestMapper itemRequestMapper;
+
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @Test
     void canCreate() throws Exception {

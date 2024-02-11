@@ -29,7 +29,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.practicum.shareit.http.RequestHeader.X_SHARER_USER_ID;
 
 @WebMvcTest(ItemController.class)
 @ContextConfiguration(
@@ -55,6 +54,8 @@ class ItemControllerTest {
 
     @Autowired
     CommentMapper commentMapper;
+
+    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @Test
     void canGetByExistingId() throws Exception {
