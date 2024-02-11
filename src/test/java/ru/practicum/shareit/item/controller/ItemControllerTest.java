@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import ru.practicum.shareit.booking.mapper.BookingMapperImpl;
 import ru.practicum.shareit.booking.mapper.LinkedBookingMapperImpl;
 import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.exception.GlobalExceptionHandler;
 import ru.practicum.shareit.item.controller.dto.*;
 import ru.practicum.shareit.item.mapper.*;
@@ -88,6 +89,26 @@ class ItemControllerTest {
                                 .header(X_SHARER_USER_ID, 1L)
                                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void willReturnValidation() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ItemUpdateRequest itemUpdateRequest = new ItemUpdateRequest();
+        itemUpdateRequest.setId(1L);
+        itemUpdateRequest.setName("updateName");
+        itemUpdateRequest.setDescription("updateDesc");
+        itemUpdateRequest.setAvailable(true);
+        String json = objectMapper.writeValueAsString(itemUpdateRequest);
+        when(itemService.update(any(),anyLong(), anyLong())).thenThrow(new ValidationException("не найден"));
+
+        mockMvc.perform(
+                        patch("/items", 1L)
+                                .header(X_SHARER_USER_ID, 1L)
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
