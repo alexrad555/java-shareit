@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +20,8 @@ import ru.practicum.shareit.booking.mapper.BookingMapperImpl;
 import ru.practicum.shareit.booking.mapper.LinkedBookingMapperImpl;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.DuplicateException;
+import ru.practicum.shareit.exception.GlobalExceptionHandler;
 import ru.practicum.shareit.item.mapper.CommentMapperImpl;
 import ru.practicum.shareit.item.mapper.CommentResponseMapperImpl;
 import ru.practicum.shareit.item.mapper.ItemMapperImpl;
@@ -38,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(BookingController.class)
 @ContextConfiguration(
         classes = {
+                GlobalExceptionHandler.class,
                 ItemMapperImpl.class,
                 CommentMapperImpl.class,
                 BookingMapperImpl.class,
@@ -146,6 +150,17 @@ class BookingControllerTest {
                 .andReturn();
         BookingResponse response = objectMapper.readValue(result.getResponse().getContentAsString(), BookingResponse.class);
         Assertions.assertThat(response).isEqualTo(bookingResponse);
+    }
+
+    @Test
+    void willReturnNotDataIntegrityViolation() throws Exception {
+
+        when(bookingService.findAllByBooker(anyLong(), any(), anyInt(), anyInt())).thenThrow(new DataIntegrityViolationException("не найден"));
+        mockMvc.perform(
+                        get("/bookings")
+                                .header(X_SHARER_USER_ID, 100L)
+                                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
     @Test
