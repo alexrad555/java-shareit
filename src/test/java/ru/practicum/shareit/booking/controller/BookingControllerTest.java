@@ -20,7 +20,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapperImpl;
 import ru.practicum.shareit.booking.mapper.LinkedBookingMapperImpl;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.DuplicateException;
 import ru.practicum.shareit.exception.GlobalExceptionHandler;
 import ru.practicum.shareit.item.mapper.CommentMapperImpl;
 import ru.practicum.shareit.item.mapper.CommentResponseMapperImpl;
