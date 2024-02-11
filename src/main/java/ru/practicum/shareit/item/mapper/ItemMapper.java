@@ -27,5 +27,7 @@ public interface ItemMapper {
 
     List<Item> toItem(List<ItemEntity> items);
 
+    List<ItemResponse> toResponse(List<Item> items);
+
     List<ItemEntity> toEntity(List<Item> items);
 }

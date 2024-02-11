@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.repository;
+package ru.practicum.shareit.booking.repository;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,7 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.OffsetPageable;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.entity.ItemRequestEntity;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
@@ -22,7 +25,7 @@ import java.util.List;
 @ActiveProfiles("test")
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ItemRepositoryTest {
+class BookingRepositoryTest {
 
     @Autowired
     ItemRepository itemRepository;
@@ -31,11 +34,14 @@ class ItemRepositoryTest {
     UserRepository userRepository;
 
     @Autowired
+    BookingRepository bookingRepository;
+
+    @Autowired
     ItemRequestRepository itemRequestRepository;
 
     static User itemOwner;
 
-    static User itemRequestor;
+    static User booker;
 
     ItemEntity itemEntityFirst;
 
@@ -43,46 +49,41 @@ class ItemRepositoryTest {
 
     ItemEntity itemEntityThird;
 
+    BookingEntity bookingEntityFirst;
+
+    BookingEntity bookingEntitySecond;
+
     ItemRequestEntity itemRequestEntity;
 
     @BeforeAll
     void setup() {
         itemOwner = new User(1L, "Tod", "user@user.com");
-        itemRequestor = new User(2L, "Bob", "user2@user.com");
-        itemRequestEntity = new ItemRequestEntity(1L, "Create Book", itemRequestor, LocalDateTime.now());
+        booker = new User(2L, "Bob", "user2@user.com");
+        itemRequestEntity = new ItemRequestEntity(1L, "Create Book", booker, LocalDateTime.now());
         itemEntityFirst = new ItemEntity(1L, "Book", "Read book",
                 true, itemOwner, itemRequestEntity);
         itemEntitySecond = new ItemEntity(2L, "Pen", "pen desc",
-                true, itemRequestor, itemRequestEntity);
+                true, booker, itemRequestEntity);
         itemEntityThird = new ItemEntity(3L, "Disc", "play disc",
                 true, itemOwner, itemRequestEntity);
+        bookingEntityFirst = new BookingEntity(1L, LocalDateTime.now().plusMinutes(5),
+                LocalDateTime.now().plusMinutes(10), itemEntityFirst, booker, BookingStatus.WAITING);
+        bookingEntitySecond = new BookingEntity(2L, LocalDateTime.now().plusMinutes(5),
+                LocalDateTime.now().plusMinutes(10), itemEntitySecond, booker, BookingStatus.WAITING);
         userRepository.save(itemOwner);
-        userRepository.save(itemRequestor);
+        userRepository.save(booker);
         itemRequestRepository.save(itemRequestEntity);
         itemRepository.save(itemEntityFirst);
         itemRepository.save(itemEntitySecond);
         itemRepository.save(itemEntityThird);
+        bookingRepository.save(bookingEntityFirst);
+        bookingRepository.save(bookingEntitySecond);
     }
-
     @Test
-    void canFindAllByOwnerId() {
+    void canFindAllByBookerId() {
         Pageable pageable = new OffsetPageable(0, 20, Sort.by(Sort.Direction.ASC, "id"));
-        List<ItemEntity> itemEntityList = itemRepository.findAllByOwnerId(itemOwner.getId(), pageable);
-        Assertions.assertThat(itemEntityList).isNotNull();
-        Assertions.assertThat(itemEntityList).containsExactlyInAnyOrder(itemEntityFirst, itemEntityThird);
+        List<BookingEntity> bookingEntityList = bookingRepository.findAllByBookerId(booker.getId(), pageable);
+        Assertions.assertThat(bookingEntityList).isNotNull();
+        Assertions.assertThat(bookingEntityList).containsExactlyInAnyOrder(bookingEntityFirst, bookingEntitySecond);
     }
-
-    @Test
-    void canFindAllByNameOrDescription() {
-        Pageable pageable = new OffsetPageable(0, 20, Sort.by(Sort.Direction.ASC, "id"));
-        List<ItemEntity> itemEntityList = itemRepository.findAllByNameOrDescription("book", pageable);
-        Assertions.assertThat(itemEntityList).isNotNull();
-        Assertions.assertThat(itemEntityList).containsExactlyInAnyOrder(itemEntityFirst);
-    }
-
-    @Test
-    void canFindAllByRequestIdIn() {
-
-    }
-
 }

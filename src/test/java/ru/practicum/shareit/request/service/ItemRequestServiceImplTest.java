@@ -139,4 +139,12 @@ class ItemRequestServiceImplTest {
                         () -> itemRequestService.findById(99L, itemRequestEntity.getId()))
                 .isInstanceOf(DataNotFoundException.class);
     }
+
+    @Test
+    void willReturnEmptyWhenRequestIdIsNull() {
+        Optional<ItemRequest> itemRequest = itemRequestService.findOptionalById(null);
+        Assertions.assertThat(itemRequest.isEmpty()).isTrue();
+    }
+
+
 }

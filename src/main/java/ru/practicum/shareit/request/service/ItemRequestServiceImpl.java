@@ -69,7 +69,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public Optional<ItemRequest> findOptionalById(Long requestId) {
         if (requestId == null) {
-            return Optional.ofNullable(null);
+            return Optional.empty();
         }
         return itemRequestRepository.findById(requestId)
                 .map(itemRequestMapper::toRequest);

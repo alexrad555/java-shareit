@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.DuplicateException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.controller.dto.UserCreateRequest;
 import ru.practicum.shareit.user.controller.dto.UserUpdateRequest;
@@ -153,5 +154,21 @@ class UserServiceImplTest {
         user.setEmail("user@user.com");
 
         userService.deleteById(user.getId());
+    }
+
+    @Test
+    void willThrowWhenDuplicateEmail() {
+        UserUpdateRequest userUpdateRequest = new UserUpdateRequest();
+        userUpdateRequest.setId(1l);
+        userUpdateRequest.setName("Update name");
+        userUpdateRequest.setEmail("update@user.com");
+        User userOrigin = userMapper.toUserUpdate(userUpdateRequest);
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(userFirst));
+        when(userRepository.findByEmail(any())).thenReturn(Optional.of(userSecond));
+
+        Assertions.assertThatThrownBy(
+                        () -> userService.update(userOrigin))
+                .isInstanceOf(DuplicateException.class);
     }
 }

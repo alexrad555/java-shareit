@@ -14,11 +14,6 @@ public class OffsetPageable extends PageRequest {
     }
 
     @Override
-    public int getPageNumber() {
-        return 0;
-    }
-
-    @Override
     public int getPageSize() {
         return limit;
     }
