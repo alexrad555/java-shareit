@@ -13,6 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import ru.practicum.shareit.booking.mapper.BookingMapperImpl;
 import ru.practicum.shareit.booking.mapper.LinkedBookingMapperImpl;
+import ru.practicum.shareit.exception.DataNotFoundException;
+import ru.practicum.shareit.exception.GlobalExceptionHandler;
 import ru.practicum.shareit.item.controller.dto.*;
 import ru.practicum.shareit.item.mapper.*;
 import ru.practicum.shareit.item.model.Comment;
@@ -33,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ItemController.class)
 @ContextConfiguration(
         classes = {
+                GlobalExceptionHandler.class,
                 ItemMapperImpl.class,
                 CommentMapperImpl.class,
                 BookingMapperImpl.class,
@@ -75,6 +78,16 @@ class ItemControllerTest {
                 .andReturn();
         ItemResponse response = mapper.readValue(result.getResponse().getContentAsString(), ItemResponse.class);
         Assertions.assertThat(response).isEqualTo(itemResponse);
+    }
+
+    @Test
+    void willReturnNotFound() throws Exception {
+        when(itemService.findById(anyLong(), anyLong())).thenThrow(new DataNotFoundException("не найден"));
+        mockMvc.perform(
+                        get("/items/{itemId}", 1L)
+                                .header(X_SHARER_USER_ID, 1L)
+                                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test

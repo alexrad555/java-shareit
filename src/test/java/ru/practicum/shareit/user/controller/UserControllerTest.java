@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.practicum.shareit.exception.DuplicateException;
+import ru.practicum.shareit.exception.GlobalExceptionHandler;
 import ru.practicum.shareit.user.controller.dto.UserCreateRequest;
 import ru.practicum.shareit.user.controller.dto.UserResponse;
 import ru.practicum.shareit.user.controller.dto.UserUpdateRequest;
@@ -30,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(UserController.class)
 @ContextConfiguration(
         classes = {
+                GlobalExceptionHandler.class,
                 UserMapperImpl.class,
                 UserController.class
         }
@@ -127,6 +130,25 @@ class UserControllerTest {
                 .andReturn();
         UserResponse response = objectMapper.readValue(result.getResponse().getContentAsString(), UserResponse.class);
         Assertions.assertThat(response).isEqualTo(userResponse);
+    }
+
+    @Test
+    void willReturnDuplicate() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserUpdateRequest userUpdateRequest = new UserUpdateRequest();
+        userUpdateRequest.setId(1L);
+        userUpdateRequest.setName("NameUpdate");
+        userUpdateRequest.setEmail("update@user.com");
+        String json = objectMapper.writeValueAsString(userUpdateRequest);
+
+        when(userService.update(any())).thenThrow(new DuplicateException("дубликат"));
+
+        mockMvc.perform(
+                        patch("/users", 1L)
+                                .content(json)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isMethodNotAllowed());
     }
 
     @Test
