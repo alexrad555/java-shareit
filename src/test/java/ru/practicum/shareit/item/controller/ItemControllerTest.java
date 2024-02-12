@@ -11,8 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.mapper.BookingMapperImpl;
 import ru.practicum.shareit.booking.mapper.LinkedBookingMapperImpl;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.exception.GlobalExceptionHandler;
@@ -23,6 +25,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,25 +62,34 @@ class ItemControllerTest {
     @Autowired
     CommentMapper commentMapper;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @Test
     void canGetByExistingId() throws Exception {
         User itemOwner = new User(1L, "Tod", "user@user.com");
+        User booker = new User(2L, "Bob", "user2@user.com");
         Item itemFirst = new Item(1L, "Book", "Read book", true,
                 itemOwner, null, Collections.EMPTY_LIST, null, null);
+        Booking lastBooking = new Booking(1L, LocalDateTime.now().minusDays(5),
+                LocalDateTime.now().minusDays(4), itemFirst, booker, BookingStatus.APPROVED);
+        Booking nextBooking = new Booking(2L, LocalDateTime.now().plusDays(4),
+                LocalDateTime.now().plusDays(5), itemFirst, booker, BookingStatus.APPROVED);
+        itemFirst.setLastBooking(lastBooking);
+        itemFirst.setLastBooking(nextBooking);
         ItemResponse itemResponse = itemMapper.toResponse(itemFirst);
 
         when(itemService.findById(anyLong(), anyLong())).thenReturn(itemFirst);
 
-        ObjectMapper mapper = new ObjectMapper();
         MvcResult result = mockMvc.perform(
                 get("/items/{itemId}", itemFirst.getId())
                         .header(X_SHARER_USER_ID, itemOwner.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        ItemResponse response = mapper.readValue(result.getResponse().getContentAsString(), ItemResponse.class);
+        ItemResponse response = objectMapper.readValue(result.getResponse().getContentAsString(), ItemResponse.class);
         Assertions.assertThat(response).isEqualTo(itemResponse);
     }
 
@@ -93,7 +105,6 @@ class ItemControllerTest {
 
     @Test
     void willReturnValidation() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         ItemUpdateRequest itemUpdateRequest = new ItemUpdateRequest();
         itemUpdateRequest.setId(1L);
         itemUpdateRequest.setName("updateName");
@@ -129,7 +140,6 @@ class ItemControllerTest {
                                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
-        ObjectMapper objectMapper = new ObjectMapper();
         List<ItemResponse>  resultMap = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
         Assertions.assertThat(resultMap.size()).isEqualTo(itemResponseList.size());
         Assertions.assertThat(resultMap).containsExactlyInAnyOrderElementsOf(itemResponseList);
@@ -153,7 +163,6 @@ class ItemControllerTest {
                         .param("text", "Read"))
                 .andExpect(status().isOk())
                 .andReturn();
-        ObjectMapper objectMapper = new ObjectMapper();
         List<ItemResponse> resultMap = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {});
         Assertions.assertThat(resultMap.size()).isEqualTo(itemResponseList.size());
         Assertions.assertThat(resultMap).containsExactlyInAnyOrderElementsOf(itemResponseList);
@@ -161,7 +170,6 @@ class ItemControllerTest {
 
     @Test
     void canCreate() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         User itemOwner = new User(1L, "Tod", "user@user.com");
         ItemCreateRequest itemCreateRequest = new ItemCreateRequest("Book", "Read book", true, 2L);
         String json = objectMapper.writeValueAsString(itemCreateRequest);
@@ -184,7 +192,6 @@ class ItemControllerTest {
 
     @Test
     void canUpdate() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         User itemOwner = new User(1L, "Tod", "user@user.com");
         ItemUpdateRequest itemUpdateRequest = new ItemUpdateRequest();
         itemUpdateRequest.setId(1L);
@@ -210,7 +217,6 @@ class ItemControllerTest {
 
     @Test
     void canCreateComment() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         User itemOwner = new User(1L, "Tod", "user@user.com");
         Item itemFirst = new Item(1L, "Book", "Read book", true,
                 itemOwner, null, Collections.EMPTY_LIST, null, null);
