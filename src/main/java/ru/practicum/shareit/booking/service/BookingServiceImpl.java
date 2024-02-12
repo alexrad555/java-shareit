@@ -91,6 +91,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findAllByBooker(Long userId, BookingState state, int from, int size) {
+        userService.findById(userId);
         Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.DESC, "startDate"));
         List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByBookerId(userId, pageable));
         return bookingList.stream()
@@ -100,7 +101,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findAllByOwner(Long userId, BookingState state, int from, int size) {
-        User user = userService.findById(userId);
+        userService.findById(userId);
         Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.DESC, "startDate"));
         List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByItemOwnerId(userId, pageable));
         return bookingList.stream()
