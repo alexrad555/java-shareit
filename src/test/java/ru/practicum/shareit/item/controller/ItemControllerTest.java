@@ -65,7 +65,7 @@ class ItemControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @Test
     void canGetByExistingId() throws Exception {
@@ -243,4 +243,5 @@ class ItemControllerTest {
         CommentResponse response = objectMapper.readValue(result.getResponse().getContentAsString(), CommentResponse.class);
         Assertions.assertThat(response.getText()).isEqualTo(commentResponse.getText());
     }
+
 }

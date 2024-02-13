@@ -17,7 +17,7 @@ public class ItemRequestController {
 
     private final ItemRequestService itemRequestService;
     private final ItemRequestMapper itemRequestMapper;
-    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @PostMapping
     public ItemRequestResponse create(@RequestHeader(X_SHARER_USER_ID) Long userId,

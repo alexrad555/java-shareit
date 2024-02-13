@@ -56,7 +56,7 @@ class ItemRequestControllerTest {
     @Autowired
     ItemRequestMapper itemRequestMapper;
 
-    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @Test
     void canCreate() throws Exception {
@@ -141,4 +141,5 @@ class ItemRequestControllerTest {
         ItemRequestResponse response = mapper.readValue(result.getResponse().getContentAsString(), ItemRequestResponse.class);
         Assertions.assertThat(response).isEqualTo(itemRequestResponse);
     }
+
 }

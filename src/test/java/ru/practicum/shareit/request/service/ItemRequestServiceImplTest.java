@@ -146,5 +146,4 @@ class ItemRequestServiceImplTest {
         Assertions.assertThat(itemRequest.isEmpty()).isTrue();
     }
 
-
 }

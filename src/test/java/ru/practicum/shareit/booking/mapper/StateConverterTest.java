@@ -19,4 +19,5 @@ class StateConverterTest {
         Assertions.assertThatThrownBy(() -> stateConverter.convert("-"))
                 .isInstanceOf(ValidationException.class);
     }
+
 }

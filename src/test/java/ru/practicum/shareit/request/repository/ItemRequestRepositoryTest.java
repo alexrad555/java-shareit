@@ -64,4 +64,5 @@ class ItemRequestRepositoryTest {
         Assertions.assertThat(itemRequestEntityList).isNotNull();
         Assertions.assertThat(itemRequestEntityList).containsExactlyInAnyOrder(itemRequestEntityThird);
     }
+
 }

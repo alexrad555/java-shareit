@@ -41,4 +41,5 @@ class UserRepositoryTest {
         Assertions.assertThat(user).isNotNull();
         Assertions.assertThat(user.get()).isEqualTo(itemRequestor);
     }
+
 }

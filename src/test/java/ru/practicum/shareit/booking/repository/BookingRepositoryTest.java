@@ -87,4 +87,5 @@ class BookingRepositoryTest {
         Assertions.assertThat(bookingEntityList).isNotNull();
         Assertions.assertThat(bookingEntityList).containsExactlyInAnyOrder(bookingEntityFirst, bookingEntitySecond);
     }
+
 }

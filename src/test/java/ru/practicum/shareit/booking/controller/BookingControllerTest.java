@@ -63,7 +63,7 @@ class BookingControllerTest {
     @Autowired
     BookingMapper bookingMapper;
 
-    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @Test
     void canCreate() throws Exception {
