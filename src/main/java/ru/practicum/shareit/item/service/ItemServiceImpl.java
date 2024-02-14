@@ -1,7 +1,10 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.OffsetPageable;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.entity.BookingEntity;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -10,6 +13,8 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.controller.dto.CommentCreateRequest;
+import ru.practicum.shareit.item.controller.dto.ItemCreateRequest;
+import ru.practicum.shareit.item.entity.CommentEntity;
 import ru.practicum.shareit.item.entity.ItemEntity;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -17,6 +22,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -35,15 +41,17 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
+    private final ItemRequestService itemRequestService;
 
     @Override
-    public Item create(Item item, Long userId) {
-        if (item.getId() != null) {
-            throw new ValidationException("не должен приходить id");
-        }
+    public Item create(ItemCreateRequest itemCreateRequest, Long userId) {
+
         User user = userService.findById(userId);
+        Item item = itemMapper.toItem(itemCreateRequest);
         item.setOwner(user);
-        ItemEntity itemEntity = itemRepository.save(itemMapper.toEntity(item));
+        item.setRequest(itemRequestService.findOptionalById(itemCreateRequest.getRequestId()).orElse(null));
+        ItemEntity itemEntity = itemMapper.toEntity(item);
+        itemRepository.save(itemEntity);
         return getItem(itemMapper.toItem(itemEntity), userId);
     }
 
@@ -57,11 +65,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> search(String text, Long userId) {
-        if (text.isBlank()) {
+    public List<Item> search(String text, Long userId, int from, int size) {
+        if (text == null || text.isBlank()) {
             return new ArrayList<>();
         }
-        return itemRepository.findAllByNameOrDescription(text).stream()
+        Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.ASC, "id"));
+        return itemRepository.findAllByNameOrDescription(text, pageable).stream()
                 .map(itemMapper::toItem)
                 .map(item -> getItem(item, userId))
                 .collect(Collectors.toList());
@@ -85,13 +94,15 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        ItemEntity itemEntity = itemRepository.save(itemMapper.toEntity(item));
+        ItemEntity itemEntity = itemMapper.toEntity(item);
+        itemRepository.save(itemEntity);
         return getItem(itemMapper.toItem(itemEntity), userId);
     }
 
     @Override
-    public List<Item> findAllByOwnerId(Long userId) {
-        return itemRepository.findAllByOwnerIdOrderById(userId).stream()
+    public List<Item> findAllByOwnerId(Long userId, int from, int size) {
+        Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.ASC, "id"));
+        return itemRepository.findAllByOwnerId(userId, pageable).stream()
                 .map(itemMapper::toItem)
                 .map(item -> getItem(item, userId))
                 .collect(Collectors.toList());
@@ -111,7 +122,10 @@ public class ItemServiceImpl implements ItemService {
         comment.setItem(item);
         comment.setAuthor(user);
         comment.setCreated(LocalDateTime.now());
-        return commentMapper.toComment(commentRepository.save(commentMapper.toEntity(comment)));
+        CommentEntity commentEntity = commentMapper.toEntity(comment);
+        commentRepository.save(commentEntity);
+        return commentMapper.toComment(commentEntity);
+
     }
 
     private Item getItem(Item item, Long userId) {

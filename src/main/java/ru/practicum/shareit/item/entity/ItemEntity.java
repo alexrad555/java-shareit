@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.entity;
 
 import lombok.*;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.entity.ItemRequestEntity;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -13,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @ToString
 @Entity
+@EqualsAndHashCode
 @Table(name = "items")
 public class ItemEntity {
     @Id
@@ -35,6 +36,6 @@ public class ItemEntity {
 
     @ManyToOne
     @JoinColumn(name = "request_id")
-    private ItemRequest request;
+    private ItemRequestEntity request;
 
 }

@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/users")
@@ -22,15 +21,13 @@ public class UserController {
     private final UserMapper mapper;
 
     @GetMapping("/{userId}")
-    public UserResponse getById(@PathVariable Long userId) {
+        public UserResponse getById(@PathVariable Long userId) {
         return mapper.toResponse(service.findById(userId));
     }
 
     @GetMapping
     public List<UserResponse> getAll() {
-        return service.findAll().stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
+        return mapper.toResponse(service.findAll());
     }
 
     @PostMapping

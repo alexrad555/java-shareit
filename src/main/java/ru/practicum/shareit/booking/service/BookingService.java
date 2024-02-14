@@ -13,7 +13,7 @@ public interface BookingService {
 
     Booking update(Long bookingId, Long userId, boolean approved);
 
-    List<Booking> findAllByBooker(Long userId, BookingState state);
+    List<Booking> findAllByBooker(Long userId, BookingState state, int from, int size);
 
-    List<Booking> findAllByOwner(Long userId, BookingState state);
+    List<Booking> findAllByOwner(Long userId, BookingState state, int from, int size);
 }

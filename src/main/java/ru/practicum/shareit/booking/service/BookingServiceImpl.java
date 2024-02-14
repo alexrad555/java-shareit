@@ -1,7 +1,10 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.OffsetPageable;
 import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.controller.dto.BookingCreateRequest;
 import ru.practicum.shareit.booking.entity.BookingEntity;
@@ -10,7 +13,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
@@ -30,7 +32,6 @@ public class BookingServiceImpl implements BookingService {
     private final UserService userService;
     private final ItemService itemService;
     private final BookingMapper bookingMapper;
-    private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
 
     @Override
@@ -56,7 +57,9 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(item);
         booking.setBooker(user);
         booking.setStatus(WAITING);
-        return bookingMapper.toBooking(bookingRepository.save(bookingMapper.toEntity(booking)));
+        BookingEntity bookingEntity = bookingMapper.toEntity(booking);
+        bookingRepository.save(bookingEntity);
+        return bookingMapper.toBooking(bookingEntity);
     }
 
     @Override
@@ -78,25 +81,29 @@ public class BookingServiceImpl implements BookingService {
             throw new DataNotFoundException(String.format("Бронирование с id %d не найдено", bookingId));
         }
         if (booking.getStatus() != WAITING) {
-            throw new ValidationException("Меня статус бронирования запрещено");
+            throw new ValidationException("Менять статус бронирования запрещено");
         }
         booking.setStatus(approved ? APPROVED : REJECTED);
-        return bookingMapper.toBooking(bookingRepository.save(bookingMapper.toEntity(booking)));
+        BookingEntity bookingEntity = bookingMapper.toEntity(booking);
+        bookingRepository.save(bookingEntity);
+        return bookingMapper.toBooking(bookingEntity);
     }
 
     @Override
-    public List<Booking> findAllByBooker(Long userId, BookingState state) {
-        User user = userService.findById(userId);
-        List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByBookerIdOrderByStartDateDesc(userId));
+    public List<Booking> findAllByBooker(Long userId, BookingState state, int from, int size) {
+        userService.findById(userId);
+        Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.DESC, "startDate"));
+        List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByBookerId(userId, pageable));
         return bookingList.stream()
                 .filter(booking -> checkBookingState(booking, state))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Booking> findAllByOwner(Long userId, BookingState state) {
-        User user = userService.findById(userId);
-        List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByItemOwnerIdOrderByStartDateDesc(userId));
+    public List<Booking> findAllByOwner(Long userId, BookingState state, int from, int size) {
+        userService.findById(userId);
+        Pageable pageable = new OffsetPageable(from, size, Sort.by(Sort.Direction.DESC, "startDate"));
+        List<Booking> bookingList = bookingMapper.toBooking(bookingRepository.findAllByItemOwnerId(userId, pageable));
         return bookingList.stream()
                 .filter(booking -> checkBookingState(booking, state))
                 .collect(Collectors.toList());
@@ -112,7 +119,7 @@ public class BookingServiceImpl implements BookingService {
 
     private boolean checkBookingState(Booking booking, BookingState state) {
         switch (state) {
-            case PAST:
+                case PAST:
                 return booking.getEndDate().isBefore(LocalDateTime.now());
             case FUTURE:
                 return booking.getStartDate().isAfter(LocalDateTime.now());

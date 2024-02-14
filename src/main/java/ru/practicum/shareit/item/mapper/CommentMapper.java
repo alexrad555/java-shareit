@@ -16,8 +16,6 @@ public interface CommentMapper {
 
     List<Comment> toComment(List<CommentEntity> comments);
 
-    List<CommentEntity> toEntity(List<Comment> comments);
-
     @Mapping(target = "authorName", source = "author.name")
     CommentResponse toResponse(Comment comment);
 }

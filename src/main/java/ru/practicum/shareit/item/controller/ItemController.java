@@ -10,7 +10,7 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/items")
@@ -20,8 +20,8 @@ public class ItemController {
     private final ItemMapper mapper;
     private final ItemService itemService;
     private final CommentMapper commentMapper;
+    private static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
-    public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 
     @GetMapping("/{itemId}")
     public ItemResponse getById(@PathVariable Long itemId,
@@ -31,26 +31,24 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemResponse> getAll(@RequestHeader(X_SHARER_USER_ID) Long userId) {
-        return itemService.findAllByOwnerId(userId).stream()
-                .map(mapper::toResponse)
-                .collect(Collectors.toList());
+    public List<ItemResponse> getAll(@RequestHeader(X_SHARER_USER_ID) Long userId,
+                                     @RequestParam(defaultValue = "0", required = false) int from,
+                                     @RequestParam(defaultValue = "20", required = false) int size) {
+        return mapper.toResponse(itemService.findAllByOwnerId(userId, from, size));
     }
 
     @GetMapping("/search")
     public List<ItemResponse> search(@RequestParam String text,
-                                     @RequestHeader(X_SHARER_USER_ID) Long userId) {
-        return itemService.search(text, userId).stream()
-                .map(mapper::toResponse)
-                .collect(Collectors
-                        .toList());
+                                     @RequestHeader(X_SHARER_USER_ID) Long userId,
+                                     @RequestParam(defaultValue = "0", required = false) int from,
+                                     @RequestParam(defaultValue = "20", required = false) int size) {
+        return mapper.toResponse(itemService.search(text, userId, from, size));
     }
 
     @PostMapping
-    public ItemResponse create(@Valid @RequestBody ItemRequest itemDto,
+    public ItemResponse create(@Valid @RequestBody ItemCreateRequest itemDto,
                                @RequestHeader(X_SHARER_USER_ID) Long userId) {
-        Item item = mapper.toItem(itemDto);
-        return mapper.toResponse(itemService.create(item, userId));
+        return mapper.toResponse(itemService.create(itemDto, userId));
     }
 
     @PatchMapping("/{itemId}")
