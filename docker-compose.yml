@@ -10,7 +10,6 @@ services:
       - server
     environment:
       - SHAREIT_SERVER_URL=http://server:8081
-      - TZ=Europe/Moscow
 
 
   server:
@@ -21,8 +20,6 @@ services:
       - "8081:8081"
     depends_on:
       - db
-    environment:
-      - TZ=Europe/Moscow
     env_file:
       - server/src/main/resources/docker/variables-spring.env
 
