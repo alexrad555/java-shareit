@@ -8,7 +8,6 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 
@@ -46,14 +45,14 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemResponse create(@Valid @RequestBody ItemCreateRequest itemDto,
+    public ItemResponse create(@RequestBody ItemCreateRequest itemDto,
                                @RequestHeader(X_SHARER_USER_ID) Long userId) {
         return mapper.toResponse(itemService.create(itemDto, userId));
     }
 
     @PatchMapping("/{itemId}")
     public ItemResponse update(@PathVariable Long itemId,
-                               @Valid @RequestBody ItemUpdateRequest itemDto,
+                               @RequestBody ItemUpdateRequest itemDto,
                                @RequestHeader(X_SHARER_USER_ID) Long userId) {
         Item item = mapper.toItemUpdate(itemDto);
         return mapper.toResponse((itemService.update(item, userId, itemId)));
@@ -61,7 +60,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentResponse createComment(@PathVariable Long itemId,
-                                         @Valid @RequestBody CommentCreateRequest commentCreateRequest,
+                                         @RequestBody CommentCreateRequest commentCreateRequest,
                                          @RequestHeader(X_SHARER_USER_ID) Long userId) {
         return commentMapper.toResponse(itemService.createComment(itemId, commentCreateRequest, userId));
     }
